@@ -62,10 +62,15 @@ class OrdersController
   end
 
   def mark_as_delivered(employee)
+    # ask the repo for all of my delivered orders
     orders = @order_repository.my_undelivered_orders(employee)
+    # tell the view to display them
     @orders_view.display(orders)
+    # tell the view to ask for the index
     index = @orders_view.ask_for('number of the order').to_i - 1
+    # get the one instance out of the array with the index
     order = orders[index]
+    # tell the repo to take the instance, mark it as delivered, and save csv
     @order_repository.mark_as_delivered(order)
   end
 
