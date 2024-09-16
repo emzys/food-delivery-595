@@ -1,28 +1,33 @@
 require 'csv'
-require_relative '../models/meal'
+require_relative '../models/employee'
 
-class MealRepository
+# employee_repository.find(1)
+# array.find { || }
+class EmployeeRepository
 
   def initialize(csv_file_path)
     @csv_file_path = csv_file_path
-    @meals = []
+    @employees = []
     @next_id = 1 # we use this to give to the next instance that needs an id
     load_csv if File.exist?(@csv_file_path) # this breaking when there's no csv file
   end
 
   def all
-    @meals
+    @employees
   end
 
-  def create(meal)
-    meal.id = @next_id
-    @next_id += 1
-    @meals << meal
-    save_csv
+  def find_by_username(username)
+    @employees.find do |employee|
+      employee.username == username
+    end
   end
 
   def find(id)
-    @meals.find { |meal| meal.id == id }
+    @employees.find { |employee| employee.id == id }
+  end
+
+  def all_riders
+    @employees.select { |employee| employee.rider? }
   end
 
   private
@@ -33,18 +38,8 @@ class MealRepository
       #<CSV::Row id:"1" name:"tonkatsu" price:"900">
 
       row[:id] = row[:id].to_i # turn id into integer
-      row[:price] = row[:price].to_i # turn price into integer
-      @meals << Meal.new(row)
+      @employees << Employee.new(row)
     end
-    @next_id = @meals.any? ? @meals.last.id + 1 : 1
-  end
-
-  def save_csv
-    CSV.open(@csv_file_path, 'wb') do |csv|
-      csv << ['id', 'name', 'price']
-      @meals.each do |meal|
-        csv << [meal.id, meal.name, meal.price]
-      end
-    end
+    @next_id = @employees.any? ? @employees.last.id + 1 : 1
   end
 end
